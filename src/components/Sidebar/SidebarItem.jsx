@@ -1,11 +1,13 @@
 import {useContext} from "react";
 import {SidebarContext} from './Sidebar.jsx'
 
-export default function SidebarItem({icon, text, active, alert}) {
+// eslint-disable-next-line react/prop-types
+export default function SidebarItem({icon, text, active, alert, onSelectTab}) {
     const {expanded} = useContext(SidebarContext)
 
     return (
         <li
+            onClick={() => onSelectTab(text)}
             className={`
         relative flex items-center py-2 px-3 my-1
         font-medium rounded-md cursor-pointer

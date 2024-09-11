@@ -1,16 +1,17 @@
 
 import {useState} from "react";
+import Authorization from "./Authorization.jsx";
 import ItemList from "./components/Items/ItemList.jsx";
-import SearchBar from "./components/SearchBar.jsx";
 import Sidebar from "./components/Sidebar/Sidebar.jsx"; // Zweite Komponente importieren
 import { LifeBuoy, Receipt, Boxes, House } from "lucide-react";
 import SidebarItem from "./components/Sidebar/SidebarItem.jsx";
-import Button from "./components/helper/Button.jsx";
+import Dashboard from "./components/Dashboard.jsx";
 
 
 const App = () => {
     const [token, setToken] = useState(''); // State für den Input-Wert
     const [items, setItems] = useState([]); // State für die API-Antwort
+    const [tabContent, setTabContent] = useState("Dashboard"); //State für den gewählten Tab
 
     // Funktion für den API-Call
     const handleFetchData = async () => {
@@ -29,7 +30,6 @@ const App = () => {
                 console.error('Fehler:', errorText);
                 throw new Error(`HTTP-Fehler: ${response.status}`);
             }
-
             // Parse response as JSON
             const data = await response.json();
             setItems(data);
@@ -38,38 +38,44 @@ const App = () => {
             console.error('API Call Fehler:', error);
         }
     };
+
+    function handleSelectedTab(tab) {
+        setTabContent(tab);
+    }
+
     let content;
 
     if (items.length === 0) {
-        content = (
-            <div className="shadow-xl rounded-xl border-2 border-rvblue-100 p-[5rem]">
-                <h2 className="text-rvblue-900 py-4 text-xl">AuthThoken eingeben</h2>
-                <div className="flex gap-4">
-                    <textarea
-                        className="h-[15rem] w-[20rem] rounded-md border-2 border-rvblue-200 focus:outline-none focus:border-b-2 focus:border-rvblue-200 text-center"
-                        placeholder="Gib dein Token ein"
-                        value={token}
-                        onChange={(e) => setToken(e.target.value)} // Setzt den Input-Wert
-                    />
-                    <Button
-                        action={handleFetchData}>Daten abrufen
-                    </Button>
-                </div>
-            </div>)
+        content = <Authorization token={token} setToken={setToken} handleFetchData={handleFetchData} />
     } else {
-        content = <div>
-            <ItemList items={items} />
-        </div>
+        switch (tabContent) {
+            case "Dashboard":
+                content = <Dashboard/>;
+                break;
+            case "Inventory":
+                content = <ItemList items={items} setItems={setItems} />;
+                break;
+            case "Billings":
+                content = <p>Rechnungen (ausstehend)</p>;
+                break;
+            case "Help":
+                content = <h2>Help needed? Ask a pro :)</h2>;
+                break;
+            default: content = <h2>Please select Tab</h2>
+
+        }
     }
 
     return <>
         <Sidebar>
-            <SidebarItem icon={<House  size={20} />} text="Dashboard" active/>
-            <SidebarItem icon={<Receipt size={20} />} text="Billings" />
-            <SidebarItem icon={<LifeBuoy size={20} />} text="Help" alert/>
-            <SidebarItem icon={<Boxes size={20} />} text="Inventory" />
+            <SidebarItem icon={<House  size={20} />} text="Dashboard" onSelectTab={handleSelectedTab} active={tabContent === 'Dashboard'}/>
+            {items.length > 0 && <>
+                <SidebarItem icon={<Boxes size={20} />} text="Inventory" onSelectTab={handleSelectedTab} active={tabContent === 'Inventory'}/>
+                <SidebarItem icon={<Receipt size={20} />} text="Billings" onSelectTab={handleSelectedTab} active={tabContent === 'Billings'}/>
+                <SidebarItem icon={<LifeBuoy size={20} />} text="Help" onSelectTab={handleSelectedTab} active={tabContent === 'Help'}/>
+            </>}
         </Sidebar>
-        <div className="flex flex-col h-screen w-full pt-[5rem] overflow-y-scroll">
+        <div className="flex flex-col h-screen w-full p-5 overflow-y-scroll">
             {content}
         </div>
     </>
