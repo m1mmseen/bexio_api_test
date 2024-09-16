@@ -6,6 +6,7 @@ import Sidebar from "./components/Sidebar/Sidebar.jsx"; // Zweite Komponente imp
 import { LifeBuoy, Receipt, Boxes, House } from "lucide-react";
 import SidebarItem from "./components/Sidebar/SidebarItem.jsx";
 import Dashboard from "./components/Dashboard.jsx";
+import Orders from "./components/Orders/page.jsx";
 
 
 const App = () => {
@@ -77,7 +78,9 @@ const App = () => {
         </Sidebar>
         <div className="flex flex-col h-screen w-full p-5 overflow-y-scroll">
             {content}
+            <Orders />
         </div>
+
     </>
 
 };
